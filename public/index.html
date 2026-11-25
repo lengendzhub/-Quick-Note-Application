@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+  <meta name="description" content="Quick Note — a calm, Apple-inspired single-page note-taking web app.">
+  <title>Quick Note</title>
+  <link
+    rel="icon"
+    type="image/svg+xml"
+    href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23FFFFFF'/%3E%3Crect width='64' height='16' rx='16' fill='%23FFD60A'/%3E%3Crect y='10' width='64' height='8' fill='%23FFD60A'/%3E%3Cline x1='14' y1='30' x2='50' y2='30' stroke='%23E5E5EA' stroke-width='3' stroke-linecap='round'/%3E%3Cline x1='14' y1='42' x2='42' y2='42' stroke='%23E5E5EA' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E"
+  >
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <!-- Sticky Translucent Header & Search Bar -->
+  <header class="app-header">
+    <div class="header-inner">
+      <div class="header-top">
+        <div class="title-group">
+          <h1 class="page-title">Notes</h1>
+          <p id="notes-count" class="notes-count" aria-live="polite">Loading…</p>
+        </div>
+      </div>
+
+      <div class="search-wrapper">
+        <label for="search-input" class="sr-only">Search notes</label>
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+          <circle cx="11" cy="11" r="7" stroke-width="2" />
+          <path d="M16.5 16.5L21 21" stroke-width="2" stroke-linecap="round" />
+        </svg>
+        <input
+          id="search-input"
+          class="search-input"
+          type="search"
+          placeholder="Search notes"
+          autocomplete="off"
+          spellcheck="false"
+        >
+        <button
+          id="search-clear-btn"
+          class="search-clear-btn"
+          type="button"
+          aria-label="Clear search"
+          hidden
+        >
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" fill="currentColor" fill-opacity="0.16" stroke="none" />
+            <path d="M9 9l6 6M15 9l-6 6" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <!-- Note Composer -->
+    <section class="composer-section" aria-label="Create a new note">
+      <form id="composer-form" class="composer-card" novalidate>
+        <div class="composer-accent" aria-hidden="true"></div>
+        <div class="composer-fields">
+          <div class="field-group">
+            <label for="note-title" class="sr-only">Note title</label>
+            <input
+              id="note-title"
+              name="title"
+              class="composer-title"
+              type="text"
+              placeholder="Title"
+              maxlength="100"
+              autocomplete="off"
+            >
+          </div>
+
+          <div class="field-group">
+            <label for="note-content" class="sr-only">Note content</label>
+            <textarea
+              id="note-content"
+              name="content"
+              class="composer-content"
+              placeholder="Write a note..."
+              rows="2"
+              maxlength="5000"
+            ></textarea>
+          </div>
+        </div>
+
+        <div class="composer-footer">
+          <span id="composer-meta" class="composer-meta" aria-live="polite">
+            <kbd class="kbd-hint">⌘</kbd><span class="kbd-plus">+</span><kbd class="kbd-hint">↵</kbd>
+            <span class="kbd-label">to add</span>
+          </span>
+
+          <button
+            id="add-note-btn"
+            class="btn-primary"
+            type="submit"
+            disabled
+          >
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+              <path d="M12 5v14M5 12h14" stroke-width="2.25" stroke-linecap="round" />
+            </svg>
+            <span id="add-note-label">Add Note</span>
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <!-- Notes List / Loading / Empty States -->
+    <section class="notes-section" aria-label="Saved notes">
+      <!-- Skeleton Loader -->
+      <div id="skeleton-loader" class="skeleton-grid" aria-busy="true" aria-label="Loading notes">
+        <div class="skeleton-card">
+          <div class="skeleton-line skeleton-title"></div>
+          <div class="skeleton-line skeleton-body"></div>
+          <div class="skeleton-line skeleton-body short"></div>
+          <div class="skeleton-line skeleton-time"></div>
+        </div>
+        <div class="skeleton-card">
+          <div class="skeleton-line skeleton-title"></div>
+          <div class="skeleton-line skeleton-body"></div>
+          <div class="skeleton-line skeleton-time"></div>
+        </div>
+        <div class="skeleton-card">
+          <div class="skeleton-line skeleton-title"></div>
+          <div class="skeleton-line skeleton-body"></div>
+          <div class="skeleton-line skeleton-body"></div>
+          <div class="skeleton-line skeleton-time"></div>
+        </div>
+      </div>
+
+      <!-- Empty State (no notes at all) -->
+      <div id="empty-state" class="empty-state" hidden>
+        <div class="empty-icon-wrap" aria-hidden="true">
+          <svg class="empty-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor">
+            <rect x="9" y="6" width="30" height="36" rx="6" stroke-width="2.2" />
+            <path d="M16 16h16M16 23h16M16 30h10" stroke-width="2.2" stroke-linecap="round" />
+          </svg>
+        </div>
+        <p class="empty-message">No notes yet. Tap above to write your first one.</p>
+      </div>
+
+      <!-- Search Empty State -->
+      <div id="search-empty-state" class="empty-state" hidden>
+        <div class="empty-icon-wrap" aria-hidden="true">
+          <svg class="empty-icon" viewBox="0 0 48 48" fill="none" stroke="currentColor">
+            <circle cx="21" cy="21" r="11" stroke-width="2.2" />
+            <path d="M29.5 29.5L39 39" stroke-width="2.2" stroke-linecap="round" />
+          </svg>
+        </div>
+        <p class="empty-message">No matching notes found.</p>
+        <button id="reset-search-btn" class="btn-secondary-pill" type="button">Clear search</button>
+      </div>
+
+      <!-- Load Error State -->
+      <div id="error-state" class="empty-state" hidden>
+        <p class="empty-message" id="error-state-message">Couldn’t load your notes.</p>
+        <button id="retry-load-btn" class="btn-secondary-pill" type="button">Try Again</button>
+      </div>
+
+      <!-- Notes Container (1 col mobile, 2-col masonry >= 900px) -->
+      <div id="notes-container" class="notes-container" hidden></div>
+    </section>
+  </main>
+
+  <!-- Apple-style Action Sheet for Delete Confirmation -->
+  <div
+    id="delete-sheet-backdrop"
+    class="sheet-backdrop"
+    hidden
+    aria-hidden="true"
+  >
+    <div
+      id="delete-sheet"
+      class="action-sheet"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="delete-sheet-title"
+      aria-describedby="delete-sheet-desc"
+    >
+      <div class="action-sheet-group">
+        <div class="action-sheet-header">
+          <h2 id="delete-sheet-title" class="action-sheet-title">Delete Note?</h2>
+          <p id="delete-sheet-desc" class="action-sheet-desc">
+            This note will be permanently removed.
+          </p>
+        </div>
+        <button
+          id="confirm-delete-btn"
+          class="action-sheet-btn action-sheet-destructive"
+          type="button"
+        >
+          Delete Note
+        </button>
+      </div>
+
+      <div class="action-sheet-group">
+        <button
+          id="cancel-delete-btn"
+          class="action-sheet-btn action-sheet-cancel"
+          type="button"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Apple-style Modal Sheet for Editing a Note -->
+  <div
+    id="edit-modal-backdrop"
+    class="modal-backdrop"
+    hidden
+    aria-hidden="true"
+  >
+    <div
+      id="edit-modal"
+      class="edit-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="edit-modal-heading"
+    >
+      <form id="edit-form" novalidate>
+        <div class="edit-modal-bar">
+          <button id="edit-cancel-btn" class="modal-text-btn" type="button">Cancel</button>
+          <h2 id="edit-modal-heading" class="edit-modal-heading">Edit Note</h2>
+          <button id="edit-save-btn" class="modal-text-btn modal-save-btn" type="submit">Done</button>
+        </div>
+
+        <div class="edit-modal-body">
+          <div class="field-group">
+            <label for="edit-note-title" class="sr-only">Edit note title</label>
+            <input
+              id="edit-note-title"
+              class="edit-title-input"
+              type="text"
+              placeholder="Title"
+              maxlength="100"
+              autocomplete="off"
+            >
+          </div>
+
+          <div class="field-group">
+            <label for="edit-note-content" class="sr-only">Edit note content</label>
+            <textarea
+              id="edit-note-content"
+              class="edit-content-input"
+              placeholder="Write a note..."
+              rows="5"
+              maxlength="5000"
+            ></textarea>
+          </div>
+
+          <p id="edit-modal-meta" class="edit-modal-meta"></p>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true">
+    <div id="toast" class="toast" role="status" hidden>
+      <span id="toast-indicator" class="toast-indicator" aria-hidden="true"></span>
+      <span id="toast-message" class="toast-message"></span>
+    </div>
+  </div>
+
+  <script src="/app.js" defer></script>
+</body>
+</html>
+

@@ -1,0 +1,26 @@
+{
+  "name": "quick-note",
+  "version": "1.0.0",
+  "description": "A calm, Apple-inspired single-page note-taking web app built with Express and vanilla HTML/CSS/JS.",
+  "main": "server.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "keywords": [
+    "notes",
+    "express",
+    "apple-hig",
+    "vanilla-js",
+    "rest-api"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2"
+  }
+}
+
